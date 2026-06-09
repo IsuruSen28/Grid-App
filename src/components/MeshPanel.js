@@ -168,8 +168,7 @@ export default function MeshPanel({ mesh, setMesh }) {
 const styles = StyleSheet.create({
   root: {
     position: 'relative',
-    // flex: 1,
-    height: 10,
+    flex: 1,
     paddingHorizontal: 12,
     paddingTop: 6,
     paddingBottom: 8,
@@ -181,7 +180,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     letterSpacing: 1,
     textTransform: 'uppercase',
-    marginBottom: 12,
+    marginBottom: 2,
   },
   cellRow: {
     flexDirection: 'row',

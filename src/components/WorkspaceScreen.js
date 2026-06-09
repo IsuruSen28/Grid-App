@@ -21,10 +21,10 @@ import PhotoPanLayer from './PhotoPanLayer';
 import AppMenu from './AppMenu';
 
 const { width: SW } = Dimensions.get('window');
-const SIZE_PANEL_HEIGHT = 148;
-const MESH_PANEL_HEIGHT = 172;
+const SIZE_PANEL_HEIGHT = 120;
+const MESH_PANEL_HEIGHT = 120;
 const ADJUST_PANEL_HEIGHT = 200;
-const COMPACT_TABS = ['size', 'mesh', 'adjust'];
+const COMPACT_TABS = ['size', 'mesh', 'adjust']
 
 export default function WorkspaceScreen({ imageUri, onGoHome, onImageChange }) {
   const { colors, theme } = useTheme();
