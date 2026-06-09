@@ -135,7 +135,7 @@ const styles = StyleSheet.create({
   hueBox: {
     width: SV_WIDTH,
     height: HUE_HEIGHT,
-    borderRadius: 6,
+    borderRadius: 0,
     borderWidth: 0.5,
     overflow: 'hidden',
     marginBottom: 6,
@@ -157,7 +157,7 @@ const styles = StyleSheet.create({
     top: 0,
     bottom: 0,
     width: 6,
-    borderRadius: 3,
+    borderRadius: 0,
     borderWidth: 2,
     backgroundColor: 'transparent',
   },
