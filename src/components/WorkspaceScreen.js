@@ -43,8 +43,15 @@ export default function WorkspaceScreen({ imageUri, onGoHome, onImageChange }) {
   const [canvasBox, setCanvasBox] = useState({ width: SW, height: 300 });
   const [previewUri, setPreviewUri] = useState(null);
   const canvasRef = useRef(null);
+  const imageCacheRef = useRef({ uri: null, img: null });
+  const photoTransformRef = useRef(photoTransform);
+  const redrawRafRef = useRef(null);
   const [overlayVisible, setOverlayVisible] = useState(false);
   const [activeCloseHandler, setActiveCloseHandler] = useState(null);
+
+  useEffect(() => {
+    photoTransformRef.current = photoTransform;
+  }, [photoTransform]);
 
   const { width: cW, height: cH } = computeCanvasSize(
     paperW,
@@ -66,27 +73,70 @@ export default function WorkspaceScreen({ imageUri, onGoHome, onImageChange }) {
   };
 
   const handlePanChange = useCallback((next) => {
-    setPhotoTransform(prev => ({ ...prev, ...clampPanOffset(next.offsetX, next.offsetY) }));
+    const updated = {
+      ...photoTransformRef.current,
+      ...clampPanOffset(next.offsetX, next.offsetY),
+    };
+    photoTransformRef.current = updated;
+    setPhotoTransform(updated);
+    if (redrawRafRef.current) return;
+    redrawRafRef.current = requestAnimationFrame(() => {
+      redrawRafRef.current = null;
+      redrawRef.current?.();
+    });
   }, []);
 
   const redraw = useCallback(async () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    canvas.width = cW;
-    canvas.height = cH;
+    if (canvas.width !== cW || canvas.height !== cH) {
+      canvas.width = cW;
+      canvas.height = cH;
+    }
     await renderToCanvas(canvas, {
       imageUri,
+      image: imageCacheRef.current.img,
       adj,
       mesh,
       paperW,
       paperH,
       crop,
-      photoTransform,
+      photoTransform: photoTransformRef.current,
       canvasBg: theme === 'light' ? '#e8e4dc' : '#1a1a1a',
     });
-  }, [imageUri, adj, mesh, paperW, paperH, crop, photoTransform, cW, cH, theme]);
+  }, [imageUri, adj, mesh, paperW, paperH, crop, cW, cH, theme]);
 
-  useEffect(() => { redraw(); }, [redraw]);
+  const redrawRef = useRef(redraw);
+  redrawRef.current = redraw;
+
+  useEffect(() => {
+    if (!imageUri) {
+      imageCacheRef.current = { uri: null, img: null };
+      redraw();
+      return;
+    }
+    if (imageCacheRef.current.uri === imageUri && imageCacheRef.current.img?.complete) {
+      redraw();
+      return;
+    }
+    const img = new window.Image();
+    img.crossOrigin = 'anonymous';
+    const uri = imageUri;
+    img.onload = () => {
+      if (uri !== imageUri) return;
+      imageCacheRef.current = { uri, img };
+      redrawRef.current?.();
+    };
+    img.onerror = () => {
+      if (uri !== imageUri) return;
+      imageCacheRef.current = { uri, img: null };
+      redrawRef.current?.();
+    };
+    img.src = imageUri;
+    imageCacheRef.current = { uri: imageUri, img: null };
+  }, [imageUri, redraw]);
+
+  useEffect(() => { redraw(); }, [redraw, photoTransform]);
 
   const capturePreview = useCallback(async () => {
     await redraw();
