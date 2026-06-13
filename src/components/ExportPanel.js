@@ -34,7 +34,8 @@ export default function ExportPanel({
       contentContainerStyle={styles.content}
       showsVerticalScrollIndicator={false}
     >
-      <SectionLabel>Final outcome</SectionLabel>
+      {/* image preview */}
+      {/* <SectionLabel>Final outcome</SectionLabel>
       <View style={[styles.previewWrap, { backgroundColor: colors.card, borderColor: colors.border }]}>
         {previewSource ? (
           Platform.OS === 'web' ? (
@@ -49,7 +50,7 @@ export default function ExportPanel({
         ) : (
           <Text style={[styles.previewEmpty, { color: colors.textDim }]}>Generating preview…</Text>
         )}
-      </View>
+      </View> */}
 
       <View style={styles.viewBtns}>
         <TouchableOpacity
@@ -85,7 +86,7 @@ export default function ExportPanel({
       )}
 
       <Divider />
-      <SectionLabel>Summary</SectionLabel>
+      {/* <SectionLabel>Summary</SectionLabel>
       <View style={[styles.infoCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
         <InfoRow colors={colors} label="Paper" value={`${paperW} × ${paperH} mm`} />
         <InfoRow colors={colors} label="Orientation" value={orientation} />
@@ -93,7 +94,7 @@ export default function ExportPanel({
         <InfoRow colors={colors} label="Cell" value={formatCellSize(mesh)} />
         <InfoRow colors={colors} label="Cell (mm)" value={`${cellWmm.toFixed(1)} × ${cellHmm.toFixed(1)}`} />
         <InfoRow colors={colors} label="Adjustments" value={hasAdj ? 'Yes' : 'None'} highlight={hasAdj} />
-      </View>
+      </View> */}
 
       <PreviewModal
         visible={viewMode === 'fullscreen'}
