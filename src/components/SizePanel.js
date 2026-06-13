@@ -7,6 +7,7 @@ import { PAPER_SIZES, COLORS } from '../constants';
 import { useTheme } from '../context/ThemeContext';
 import { CenteredSlider } from './UI';
 import DropUpMenu from './DropUpMenu';
+import { clampScale } from '../utils/canvas';
 
 const PAPER_ENTRIES = Object.entries(PAPER_SIZES);
 
@@ -82,10 +83,10 @@ export default function SizePanel({
           <Slider
             style={styles.slider}
             minimumValue={0.5}
-            maximumValue={2.5}
+            maximumValue={3}
             step={0.05}
             value={photoTransform.scale ?? 1}
-            onValueChange={v => updateTransform('scale', v)}
+            onValueChange={v => updateTransform('scale', clampScale(v))}
             minimumTrackTintColor={colors.accent}
             maximumTrackTintColor={colors.border}
             thumbTintColor={colors.accent}

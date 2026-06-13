@@ -1,9 +1,11 @@
 // Given paper dimensions and screen constraints, compute canvas display size
-export function computeCanvasSize(paperW, paperH, maxW, maxH) {
+export function computeCanvasSize(paperW, paperH, maxW, maxH, padding = 0) {
+  const availW = Math.max(40, maxW - padding * 2);
+  const availH = Math.max(40, maxH - padding * 2);
   const ratio = paperW / paperH;
-  let cw = maxW;
+  let cw = availW;
   let ch = cw / ratio;
-  if (ch > maxH) { ch = maxH; cw = ch * ratio; }
+  if (ch > availH) { ch = availH; cw = ch * ratio; }
   return { width: Math.floor(cw), height: Math.floor(ch) };
 }
 
@@ -29,6 +31,7 @@ export const DEFAULT_ADJ = {
 };
 
 export const DEFAULT_MESH = {
+  enabled: false,
   lineWidth: 1,
   opacity: 50,
   colorHex: '#ffffff',
@@ -55,7 +58,12 @@ export const DEFAULT_PHOTO_TRANSFORM = {
   offsetY: 0,
 };
 
-// Compute image draw params to cover canvas (object-fit: cover)
+export const SIZE_TAB_CANVAS_PADDING = 28;
+
+export function clampScale(s) {
+  return Math.max(0.5, Math.min(3, s ?? 1));
+}
+
 export function coverParams(imgW, imgH, canW, canH, crop) {
   const imgRatio = imgW / imgH;
   const canRatio = canW / canH;
@@ -82,7 +90,7 @@ export function coverParams(imgW, imgH, canW, canH, crop) {
 
 export function imageDrawParams(imgW, imgH, canW, canH, crop, transform) {
   let { sx, sy, sw, sh } = coverParams(imgW, imgH, canW, canH, crop);
-  const scale = Math.max(0.5, Math.min(3, transform?.scale ?? 1));
+  const scale = clampScale(transform?.scale ?? 1);
   const offsetX = transform?.offsetX ?? 0;
   const offsetY = transform?.offsetY ?? 0;
 
