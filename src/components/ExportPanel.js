@@ -34,23 +34,6 @@ export default function ExportPanel({
       contentContainerStyle={styles.content}
       showsVerticalScrollIndicator={false}
     >
-      {/* image preview */}
-      {/* <SectionLabel>Final outcome</SectionLabel>
-      <View style={[styles.previewWrap, { backgroundColor: colors.card, borderColor: colors.border }]}>
-        {previewSource ? (
-          Platform.OS === 'web' ? (
-            <img
-              src={previewUri}
-              alt="Export preview"
-              style={{ width: '100%', height: 160, objectFit: 'contain', display: 'block' }}
-            />
-          ) : (
-            <Image source={previewSource} style={styles.previewImg} resizeMode="contain" />
-          )
-        ) : (
-          <Text style={[styles.previewEmpty, { color: colors.textDim }]}>Generating preview…</Text>
-        )}
-      </View> */}
 
       <View style={styles.viewBtns}>
         <TouchableOpacity

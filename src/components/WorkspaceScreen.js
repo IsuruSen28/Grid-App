@@ -33,7 +33,7 @@ export default function WorkspaceScreen({ imageUri, onGoHome, onImageChange }) {
   const [paperKey, setPaperKey] = useState('A4');
   const [paperW, setPaperW] = useState(210);
   const [paperH, setPaperH] = useState(297);
-  const [orientation, setOrientation] = useState('portrait');
+  const [orientation, setOrientation] = useState('Portrait');
   const [customW, setCustomW] = useState(200);
   const [customH, setCustomH] = useState(200);
   const [mesh, setMesh] = useState(DEFAULT_MESH);
@@ -61,13 +61,13 @@ export default function WorkspaceScreen({ imageUri, onGoHome, onImageChange }) {
   );
 
   const setPaper = (w, h) => {
-    if (orientation === 'landscape') { setPaperW(h); setPaperH(w); }
+    if (orientation === 'Landscape') { setPaperW(h); setPaperH(w); }
     else { setPaperW(w); setPaperH(h); }
   };
 
   const handleOrientation = (o) => {
     setOrientation(o);
-    if ((o === 'portrait' && paperW > paperH) || (o === 'landscape' && paperH > paperW)) {
+    if ((o === 'Portrait' && paperW > paperH) || (o === 'Landscape' && paperH > paperW)) {
       const tmp = paperW; setPaperW(paperH); setPaperH(tmp);
     }
   };
