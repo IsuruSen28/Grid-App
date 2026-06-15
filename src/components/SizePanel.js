@@ -35,6 +35,7 @@ export default function SizePanel({
   const [paperOpen, setPaperOpen] = useState(false);
   const [localW, setLocalW] = useState(String(customW));
   const [localH, setLocalH] = useState(String(customH));
+  // const [orientLabel, setOrientLabel] = useState("Portrait")
 
   const paperLabel = PAPER_SIZES[paperKey]?.label ?? paperKey;
   const updateTransform = (key, val) => setPhotoTransform(prev => ({ ...prev, [key]: val }));
@@ -148,24 +149,13 @@ export default function SizePanel({
         </View>
 
         <TouchableOpacity
-          style={[
-            styles.orientBtn,
-            { backgroundColor: colors.card, borderColor: colors.border },
-            orientation === 'portrait' && { backgroundColor: colors.accent, borderColor: colors.accent },
-          ]}
-          onPress={() => setOrientation('portrait')}
+        style={[
+          styles.orientBtn,
+          { backgroundColor: colors.card, borderColor: colors.border },
+        ]}
+        onPress={() => setOrientation(orientation === "Portrait" ? "Landscape" : "Portrait")}
         >
-          <Text style={[styles.orientText, { color: colors.textMuted }, orientation === 'portrait' && { color: colors.bg }]}>Portrait</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[
-            styles.orientBtn,
-            { backgroundColor: colors.card, borderColor: colors.border },
-            orientation === 'landscape' && { backgroundColor: colors.accent, borderColor: colors.accent },
-          ]}
-          onPress={() => setOrientation('landscape')}
-        >
-          <Text style={[styles.orientText, { color: colors.textMuted }, orientation === 'landscape' && { color: colors.bg }]}>Landscape</Text>
+          <Text style={[styles.orientText, { color: colors.textMuted }, orientation === 'portrait' && { color: colors.bg }]}>{orientation}</Text>
         </TouchableOpacity>
       </View>
     </View>
