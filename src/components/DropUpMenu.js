@@ -18,10 +18,10 @@ export default function DropUpMenu({
   if (!open) return null;
 
   const menuAlignStyle =
-    align === 'right'
-      ? { right: 12, left: undefined, bottom: 70, width: width ?? 200 }
-      : align === 'left'
-        ? { left: 112, right: undefined, bottom: 70, width: width ?? 200 }
+    align === 'colorBox'
+      ? { right: 90, left: undefined, bottom: 88, width: width ?? 240 }
+      : align === 'unitBox'
+        ? { left: 112, right: undefined, bottom: 148, width: width ?? 100 }
         : align === 'pageSize'
           ? { left: 12, right: undefined, bottom: 35, width: width ?? 160 }
           : { left: 12, right: 12, bottom: 70, width: width ?? 200 };

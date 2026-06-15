@@ -97,7 +97,7 @@ export default function MeshPanel({ mesh, setMesh }) {
             <Text style={[styles.unitText, { color: colors.text }]}>{unitLabel}</Text>
             <Text style={[styles.unitCaret, { color: colors.textMuted }]}>▴</Text>
           </TouchableOpacity>
-          <DropUpMenu open={unitOpen} onClose={() => setUnitOpen(false)} align="left" width={204}>
+          <DropUpMenu open={unitOpen} onClose={() => setUnitOpen(false)} align="unitBox" width={100}>
             <View style={styles.unitGrid}>
               {MESH_UNITS.map(unit => (
                 <TouchableOpacity
@@ -154,7 +154,7 @@ export default function MeshPanel({ mesh, setMesh }) {
             <View style={[styles.colorSwatch, { backgroundColor: swatchColor, borderColor: colors.border }]} />
             <Text style={[styles.colorLabel, { color: colors.text }]}>Color</Text>
           </TouchableOpacity>
-          <DropUpMenu open={colorOpen} onClose={() => setColorOpen(false)} align="right" width={212} maxHeight={320}>
+          <DropUpMenu open={colorOpen} onClose={() => setColorOpen(false)} align="colorBox" width={212} maxHeight={340}>
             <MeshColorDropUp mesh={mesh} onChange={update} />
           </DropUpMenu>
         </View>
@@ -236,7 +236,7 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   unitCell: {
-    width: '47%',
+    width: '96%',
     paddingVertical: 8,
     paddingHorizontal: 6,
     borderRadius: 6,
