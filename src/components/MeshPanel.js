@@ -47,7 +47,7 @@ export default function MeshPanel({ mesh, setMesh }) {
 
   return (
     <View style={[styles.root, { backgroundColor: colors.surface }]}>
-      {/* <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>Line width</Text>
+      <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>Line width</Text>
       <SliderRow
         label="Width"
         value={mesh.lineWidth}
@@ -57,7 +57,7 @@ export default function MeshPanel({ mesh, setMesh }) {
         decimals={1}
         unit="px"
         onChange={v => update({ lineWidth: Math.max(0, v) })}
-      /> */}
+      />
 
       <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>Cell size</Text>
       <View style={styles.cellRow}>
