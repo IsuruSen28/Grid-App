@@ -5,7 +5,7 @@ import {
 } from 'react-native';
 import { useTheme } from '../context/ThemeContext';
 import { SectionLabel, ActionButton, Divider } from './UI';
-import { meshGridFromPaper, formatCellSize } from '../utils/mesh';
+import { meshGridFromPaper } from '../utils/mesh';
 import { mmToScreenPx } from '../utils/exportCanvas';
 
 export default function ExportPanel({
@@ -21,12 +21,9 @@ export default function ExportPanel({
 }) {
   const { colors } = useTheme();
   const [viewMode, setViewMode] = useState(null);
-  const { cols, rows, cellWmm, cellHmm } = meshGridFromPaper(paperW, paperH, mesh);
-  const hasAdj = Object.values(adj).some(v => v !== 0);
+  const { cols, rows } = meshGridFromPaper(paperW, paperH, mesh);
   const realW = Math.round(mmToScreenPx(paperW));
   const realH = Math.round(mmToScreenPx(paperH));
-
-  const previewSource = previewUri ? { uri: previewUri } : null;
 
   return (
     <ScrollView
@@ -34,7 +31,7 @@ export default function ExportPanel({
       contentContainerStyle={styles.content}
       showsVerticalScrollIndicator={false}
     >
-
+      <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>Preview reference</Text>
       <View style={styles.viewBtns}>
         <TouchableOpacity
           style={[styles.viewBtn, { borderColor: colors.border, backgroundColor: colors.card }]}
@@ -43,8 +40,9 @@ export default function ExportPanel({
             setViewMode('fullscreen');
           }}
           disabled={!previewUri}
+          activeOpacity={0.8}
         >
-          <Text style={[styles.viewBtnText, { color: colors.text }]}>Full screen</Text>
+          <Text style={[styles.viewBtnText, { color: colors.text }]}>Full Screen</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.viewBtn, { borderColor: colors.accent, backgroundColor: colors.card }]}
@@ -53,31 +51,22 @@ export default function ExportPanel({
             setViewMode('realsize');
           }}
           disabled={!previewUri}
+          activeOpacity={0.8}
         >
-          <Text style={[styles.viewBtnText, { color: colors.accent }]}>Real size</Text>
+          <Text style={[styles.viewBtnText, { color: colors.accent }]}>Real Size</Text>
         </TouchableOpacity>
       </View>
       <Text style={[styles.realHint, { color: colors.textDim }]}>
-        Real size: {paperW} × {paperH} mm on screen (~{realW} × {realH} px)
+        Real size mapping: {paperW} × {paperH} mm on screen (~{realW} × {realH} px)
       </Text>
 
       <Divider />
-      <SectionLabel>Save</SectionLabel>
-      <ActionButton label="Share / Save PNG" variant="accent" onPress={onExport} />
+      
+      <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>Export reference</Text>
+      <ActionButton label="Share / Save PNG" variant="accent" onPress={onExport} style={styles.exportBtn} />
       {!imageLoaded && (
-        <Text style={[styles.warn, { color: colors.danger }]}>Load a photo first</Text>
+        <Text style={[styles.warn, { color: colors.danger }]}>Load a photo to export reference.</Text>
       )}
-
-      <Divider />
-      {/* <SectionLabel>Summary</SectionLabel>
-      <View style={[styles.infoCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
-        <InfoRow colors={colors} label="Paper" value={`${paperW} × ${paperH} mm`} />
-        <InfoRow colors={colors} label="Orientation" value={orientation} />
-        <InfoRow colors={colors} label="Grid" value={`${cols} × ${rows}`} />
-        <InfoRow colors={colors} label="Cell" value={formatCellSize(mesh)} />
-        <InfoRow colors={colors} label="Cell (mm)" value={`${cellWmm.toFixed(1)} × ${cellHmm.toFixed(1)}`} />
-        <InfoRow colors={colors} label="Adjustments" value={hasAdj ? 'Yes' : 'None'} highlight={hasAdj} />
-      </View> */}
 
       <PreviewModal
         visible={viewMode === 'fullscreen'}
@@ -107,10 +96,10 @@ function PreviewModal({ visible, onClose, previewUri, mode, realW, realH, paperW
   return (
     <Modal visible transparent animationType="fade" onRequestClose={onClose}>
       <Pressable style={[styles.modalBg, { backgroundColor: colors.overlay }]} onPress={onClose}>
-        <Pressable style={styles.modalInner} onPress={e => e.stopPropagation()}>
+        <Pressable style={[styles.modalInner, { backgroundColor: colors.card, borderColor: colors.border, ...colors.shadow }]} onPress={e => e.stopPropagation()}>
           {mode === 'realsize' && (
             <Text style={[styles.modalLabel, { color: colors.accent }]}>
-              Real size — {paperW} × {paperH} mm
+              Real Size — {paperW} × {paperH} mm
             </Text>
           )}
           <ScrollView
@@ -126,7 +115,7 @@ function PreviewModal({ visible, onClose, previewUri, mode, realW, realH, paperW
                 style={
                   mode === 'realsize'
                     ? { width: realW, height: realH, objectFit: 'fill', display: 'block' }
-                    : { maxWidth: '95vw', maxHeight: '85vh', objectFit: 'contain', display: 'block' }
+                    : { maxWidth: '90vw', maxHeight: '75vh', objectFit: 'contain', display: 'block' }
                 }
               />
             ) : (
@@ -141,8 +130,12 @@ function PreviewModal({ visible, onClose, previewUri, mode, realW, realH, paperW
               />
             )}
           </ScrollView>
-          <TouchableOpacity style={[styles.closeBtn, { backgroundColor: colors.accent }]} onPress={onClose}>
-            <Text style={{ color: colors.bg, fontWeight: '600' }}>Close</Text>
+          <TouchableOpacity
+            style={[styles.closeBtn, { backgroundColor: colors.accent, ...colors.shadow }]}
+            onPress={onClose}
+            activeOpacity={0.8}
+          >
+            <Text style={{ color: colors.bg, fontWeight: '700', fontSize: 13 }}>Close Preview</Text>
           </TouchableOpacity>
         </Pressable>
       </Pressable>
@@ -150,53 +143,48 @@ function PreviewModal({ visible, onClose, previewUri, mode, realW, realH, paperW
   );
 }
 
-function InfoRow({ label, value, highlight, colors }) {
-  return (
-    <View style={[styles.infoRow, { borderBottomColor: colors.border }]}>
-      <Text style={[styles.infoLabel, { color: colors.textMuted }]}>{label}</Text>
-      <Text style={[styles.infoValue, { color: highlight ? colors.accent : colors.text }]}>{value}</Text>
-    </View>
-  );
-}
-
 const styles = StyleSheet.create({
   scroll: { flex: 1 },
-  content: { padding: 14, paddingBottom: 24 },
-  previewWrap: {
-    borderRadius: 10,
-    borderWidth: 0.5,
-    minHeight: 160,
-    overflow: 'hidden',
+  content: { paddingHorizontal: 16, paddingTop: 8, paddingBottom: 24 },
+  sectionTitle: {
+    fontSize: 9,
+    fontWeight: '700',
+    letterSpacing: 1.2,
+    textTransform: 'uppercase',
+    marginBottom: 6,
+  },
+  viewBtns: { flexDirection: 'row', gap: 8, marginTop: 4 },
+  viewBtn: {
+    flex: 1,
+    paddingVertical: 12,
+    borderRadius: 8,
+    borderWidth: 0.8,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  previewImg: { width: '100%', height: 160 },
-  previewEmpty: { padding: 40, fontSize: 13 },
-  viewBtns: { flexDirection: 'row', gap: 8, marginTop: 10 },
-  viewBtn: {
-    flex: 1,
-    paddingVertical: 10,
-    borderRadius: 8,
-    borderWidth: 0.5,
+  viewBtnText: { fontSize: 12, fontWeight: '700' },
+  realHint: { fontSize: 9, textAlign: 'center', marginTop: 6, fontWeight: '500' },
+  warn: { fontSize: 11, marginTop: 8, textAlign: 'center', fontWeight: '600' },
+  exportBtn: { marginTop: 4 },
+  modalBg: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  modalInner: {
+    width: '94%',
+    maxHeight: '90%',
+    alignItems: 'center',
+    borderRadius: 16,
+    borderWidth: 0.8,
+    padding: 16,
+  },
+  modalLabel: { fontSize: 13, fontWeight: '700', marginBottom: 12 },
+  modalScroll: { maxHeight: '80%', width: '100%' },
+  modalScrollContent: { alignItems: 'center', justifyContent: 'center' },
+  closeBtn: {
+    marginTop: 16,
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 20,
+    width: '60%',
     alignItems: 'center',
   },
-  viewBtnText: { fontSize: 13, fontWeight: '600' },
-  realHint: { fontSize: 10, textAlign: 'center', marginTop: 6 },
-  warn: { fontSize: 12, marginTop: 8, textAlign: 'center' },
-  infoCard: { borderRadius: 12, borderWidth: 0.5, overflow: 'hidden' },
-  infoRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    borderBottomWidth: 0.5,
-  },
-  infoLabel: { fontSize: 13 },
-  infoValue: { fontSize: 13, fontWeight: '500' },
-  modalBg: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  modalInner: { maxWidth: '96%', maxHeight: '92%', alignItems: 'center' },
-  modalLabel: { fontSize: 13, fontWeight: '600', marginBottom: 10 },
-  modalScroll: { maxHeight: '80%' },
-  modalScrollContent: { alignItems: 'center', justifyContent: 'center' },
-  closeBtn: { marginTop: 16, paddingHorizontal: 24, paddingVertical: 10, borderRadius: 8 },
 });
+

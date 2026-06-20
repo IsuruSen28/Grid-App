@@ -3,7 +3,7 @@ import {
   View, Text, TextInput, TouchableOpacity, StyleSheet,
 } from 'react-native';
 import Slider from '@react-native-community/slider';
-import { PAPER_SIZES, COLORS } from '../constants';
+import { PAPER_SIZES } from '../constants';
 import { useTheme } from '../context/ThemeContext';
 import { CenteredSlider } from './UI';
 import DropUpMenu from './DropUpMenu';
@@ -12,7 +12,7 @@ import { clampScale } from '../utils/canvas';
 const PAPER_ENTRIES = Object.entries(PAPER_SIZES);
 
 function activeChipBg(colors) {
-  return colors.bg === '#0f0f0f' ? 'rgba(232,213,163,0.12)' : 'rgba(138,115,64,0.14)';
+  return colors.bg === '#0a0a0a' ? 'rgba(232,213,163,0.15)' : 'rgba(138,115,64,0.18)';
 }
 
 export default function SizePanel({
@@ -35,7 +35,6 @@ export default function SizePanel({
   const [paperOpen, setPaperOpen] = useState(false);
   const [localW, setLocalW] = useState(String(customW));
   const [localH, setLocalH] = useState(String(customH));
-  // const [orientLabel, setOrientLabel] = useState("Portrait")
 
   const paperLabel = PAPER_SIZES[paperKey]?.label ?? paperKey;
   const updateTransform = (key, val) => setPhotoTransform(prev => ({ ...prev, [key]: val }));
@@ -99,11 +98,15 @@ export default function SizePanel({
       <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>Page & orientation</Text>
       <View style={[styles.row, styles.rowLast]}>
         <View style={styles.paperAnchor}>
-          <TouchableOpacity style={[styles.paperBtn, { backgroundColor: colors.card, borderColor: colors.border }]} onPress={() => setPaperOpen(o => !o)}>
+          <TouchableOpacity
+            style={[styles.paperBtn, { backgroundColor: colors.card, borderColor: colors.border }]}
+            onPress={() => setPaperOpen(o => !o)}
+            activeOpacity={0.8}
+          >
             <Text style={[styles.paperBtnLabel, { color: colors.textMuted }]}>Page</Text>
             <Text style={[styles.paperBtnValue, { color: colors.text }]}>{paperLabel}  ▴</Text>
           </TouchableOpacity>
-          <DropUpMenu open={paperOpen} onClose={() => setPaperOpen(false)} align="pageSize" width={160}>
+          <DropUpMenu open={paperOpen} onClose={() => setPaperOpen(false)} align="pageSize" width={170}>
             <View style={styles.paperGrid}>
               {PAPER_ENTRIES.map(([key, val]) => (
                 <TouchableOpacity
@@ -114,15 +117,20 @@ export default function SizePanel({
                     paperKey === key && { borderColor: colors.accent, backgroundColor: activeChipBg(colors) },
                   ]}
                   onPress={() => selectPaper(key, val)}
+                  activeOpacity={0.7}
                 >
-                  <Text style={[styles.paperCellText, { color: colors.text }, paperKey === key && { color: colors.accent, fontWeight: '700' }]}>
+                  <Text style={[
+                    styles.paperCellText,
+                    { color: colors.text },
+                    paperKey === key && { color: colors.accent, fontWeight: '700' }
+                  ]}>
                     {val.label}
                   </Text>
                 </TouchableOpacity>
               ))}
             </View>
             {paperKey === 'Custom' && (
-              <View style={styles.customRow}>
+              <View style={[styles.customRow, { borderTopColor: colors.border }]}>
                 <TextInput
                   style={[styles.input, { backgroundColor: colors.surface, borderColor: colors.border, color: colors.text }]}
                   value={localW}
@@ -140,7 +148,11 @@ export default function SizePanel({
                   placeholder="H"
                   placeholderTextColor={colors.textDim}
                 />
-                <TouchableOpacity style={[styles.applyBtn, { backgroundColor: colors.accent }]} onPress={applyCustom}>
+                <TouchableOpacity
+                  style={[styles.applyBtn, { backgroundColor: colors.accent }]}
+                  onPress={applyCustom}
+                  activeOpacity={0.8}
+                >
                   <Text style={[styles.applyText, { color: colors.bg }]}>OK</Text>
                 </TouchableOpacity>
               </View>
@@ -149,13 +161,14 @@ export default function SizePanel({
         </View>
 
         <TouchableOpacity
-        style={[
-          styles.orientBtn,
-          { backgroundColor: colors.card, borderColor: colors.border },
-        ]}
-        onPress={() => setOrientation(orientation === "Portrait" ? "Landscape" : "Portrait")}
+          style={[
+            styles.orientBtn,
+            { backgroundColor: colors.accent, borderColor: colors.accent },
+          ]}
+          onPress={() => setOrientation(orientation === 'Portrait' ? 'Landscape' : 'Portrait')}
+          activeOpacity={0.8}
         >
-          <Text style={[styles.orientText, { color: colors.textMuted }, orientation === 'portrait' && { color: colors.bg }]}>{orientation}</Text>
+          <Text style={[styles.orientText, { color: colors.bg }]}>{orientation}</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -165,27 +178,25 @@ export default function SizePanel({
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    paddingHorizontal: 12,
-    paddingTop: 6,
+    paddingHorizontal: 16,
+    paddingTop: 8,
     paddingBottom: 8,
-    backgroundColor: COLORS.surface,
     overflow: 'visible',
     zIndex: 1,
   },
   sectionTitle: {
     fontSize: 9,
     fontWeight: '700',
-    letterSpacing: 1,
+    letterSpacing: 1.2,
     textTransform: 'uppercase',
-    color: COLORS.textMuted,
-    marginBottom: 2,
+    marginBottom: 4,
   },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    minHeight: 44,
-    marginBottom: 6,
-    gap: 6,
+    minHeight: 40,
+    marginBottom: 8,
+    gap: 8,
   },
   rowLast: {
     marginBottom: 0,
@@ -194,24 +205,23 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    marginRight: 6,
-    minHeight: 36,
+    marginRight: 4,
+    minHeight: 32,
   },
   miniLabel: {
-    width: 38,
+    width: 42,
     fontSize: 10,
-    color: COLORS.textMuted,
     fontWeight: '600',
   },
   slider: {
     flex: 1,
-    height: 36,
-    minWidth: 60,
+    height: 32,
+    minWidth: 50,
   },
   miniVal: {
     width: 32,
     fontSize: 10,
-    color: COLORS.accent,
+    fontWeight: '700',
     textAlign: 'right',
     fontVariant: ['tabular-nums'],
   },
@@ -224,103 +234,86 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: COLORS.card,
     borderRadius: 8,
-    borderWidth: 0.5,
-    borderColor: COLORS.border,
-    paddingHorizontal: 10,
-    paddingVertical: 8,
+    borderWidth: 0.8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
   },
   paperBtnLabel: {
     fontSize: 10,
-    color: COLORS.textMuted,
-    fontWeight: '600',
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
   paperBtnValue: {
     flex: 1,
-    fontSize: 13,
-    color: COLORS.text,
-    fontWeight: '500',
+    fontSize: 12,
+    fontWeight: '600',
+    textAlign: 'right',
   },
   paperGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 6,
+    padding: 2,
   },
   paperCell: {
     width: '47%',
-    paddingVertical: 8,
+    paddingVertical: 10,
     paddingHorizontal: 6,
     borderRadius: 6,
-    backgroundColor: COLORS.surface,
-    borderWidth: 0.5,
-    borderColor: COLORS.border,
+    borderWidth: 0.8,
     alignItems: 'center',
   },
-  paperCellActive: {
-    borderColor: COLORS.accent,
-    backgroundColor: 'rgba(232,213,163,0.12)',
-  },
   paperCellText: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: '500',
-    color: COLORS.text,
-  },
-  paperCellTextActive: {
-    color: COLORS.accent,
-    fontWeight: '700',
   },
   customRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    marginTop: 8,
-    paddingTop: 8,
-    borderTopWidth: 0.5,
-    borderTopColor: COLORS.border,
+    marginTop: 10,
+    paddingTop: 10,
+    borderTopWidth: 0.8,
   },
   input: {
     flex: 1,
-    backgroundColor: COLORS.surface,
-    borderWidth: 0.5,
-    borderColor: COLORS.border,
+    borderWidth: 0.8,
     borderRadius: 6,
     paddingHorizontal: 8,
     paddingVertical: 6,
-    color: COLORS.text,
-    fontSize: 13,
+    fontSize: 12,
+    fontWeight: '600',
     minWidth: 40,
+    textAlign: 'center',
   },
-  customX: { color: COLORS.textMuted, fontSize: 12 },
+  customX: { fontSize: 11, fontWeight: '700' },
   applyBtn: {
-    backgroundColor: COLORS.accent,
     borderRadius: 6,
-    paddingHorizontal: 10,
+    paddingHorizontal: 12,
     paddingVertical: 7,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   applyText: {
-    color: COLORS.bg,
-    fontWeight: '600',
-    fontSize: 12,
+    fontWeight: '700',
+    fontSize: 11,
   },
   orientBtn: {
-    paddingHorizontal: 10,
-    paddingVertical: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
     borderRadius: 8,
-    borderWidth: 0.5,
-    borderColor: COLORS.border,
-    backgroundColor: COLORS.card,
-  },
-  orientBtnActive: {
-    backgroundColor: COLORS.accent,
-    borderColor: COLORS.accent,
+    borderWidth: 0.8,
+    justifyContent: 'center',
+    alignItems: 'center',
+    minWidth: 90,
   },
   orientText: {
     fontSize: 11,
-    fontWeight: '600',
-    color: COLORS.textMuted,
-  },
-  orientTextActive: {
-    color: COLORS.bg,
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
 });
+
