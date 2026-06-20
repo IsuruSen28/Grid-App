@@ -4,7 +4,7 @@ import {
 } from 'react-native';
 import { useTheme } from '../context/ThemeContext';
 import { SliderRow } from './UI';
-import { MESH_UNITS, meshColorRgba, formatCellSize } from '../utils/mesh';
+import { MESH_UNITS, meshColorRgba } from '../utils/mesh';
 import DropUpMenu from './DropUpMenu';
 import MeshColorDropUp from './MeshColorDropUp';
 
@@ -93,9 +93,10 @@ export default function MeshPanel({ mesh, setMesh }) {
           <TouchableOpacity
             style={[styles.unitBox, { backgroundColor: colors.card, borderColor: colors.border }]}
             onPress={openUnitMenu}
+            activeOpacity={0.8}
           >
             <Text style={[styles.unitText, { color: colors.text }]}>{unitLabel}</Text>
-            <Text style={[styles.unitCaret, { color: colors.textMuted }]}>▴</Text>
+            <Text style={[styles.unitCaret, { color: colors.accent }]}>▴</Text>
           </TouchableOpacity>
           <DropUpMenu open={unitOpen} onClose={() => setUnitOpen(false)} align="unitBox" width={100}>
             <View style={styles.unitGrid}>
@@ -111,6 +112,7 @@ export default function MeshPanel({ mesh, setMesh }) {
                     update({ unit: unit.key });
                     setUnitOpen(false);
                   }}
+                  activeOpacity={0.7}
                 >
                   <Text
                     style={[
@@ -134,12 +136,13 @@ export default function MeshPanel({ mesh, setMesh }) {
             mesh.diagonalEnabled && { backgroundColor: colors.accent, borderColor: colors.accent },
           ]}
           onPress={() => update({ diagonalEnabled: !mesh.diagonalEnabled })}
+          activeOpacity={0.8}
         >
           <Text
             style={[
               styles.diagIcon,
               { color: colors.textMuted },
-              mesh.diagonalEnabled && { color: colors.bg },
+              mesh.diagonalEnabled && { color: colors.bg, fontWeight: '700' },
             ]}
           >
             ⤬
@@ -150,6 +153,7 @@ export default function MeshPanel({ mesh, setMesh }) {
           <TouchableOpacity
             style={[styles.colorBox, { backgroundColor: colors.card, borderColor: colors.border }]}
             onPress={openColorMenu}
+            activeOpacity={0.8}
           >
             <View style={[styles.colorSwatch, { backgroundColor: swatchColor, borderColor: colors.border }]} />
             <Text style={[styles.colorLabel, { color: colors.text }]}>Color</Text>
@@ -159,8 +163,6 @@ export default function MeshPanel({ mesh, setMesh }) {
           </DropUpMenu>
         </View>
       </View>
-
-      {/* <Text style={[styles.summary, { color: colors.textDim }]}>{formatCellSize(mesh)} per cell</Text> */}
     </View>
   );
 }
@@ -169,8 +171,8 @@ const styles = StyleSheet.create({
   root: {
     position: 'relative',
     flex: 1,
-    paddingHorizontal: 12,
-    paddingTop: 6,
+    paddingHorizontal: 16,
+    paddingTop: 8,
     paddingBottom: 8,
     overflow: 'visible',
     zIndex: 1,
@@ -178,36 +180,36 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 9,
     fontWeight: '700',
-    letterSpacing: 1,
+    letterSpacing: 1.2,
     textTransform: 'uppercase',
-    marginBottom: 2,
+    marginBottom: 4,
   },
   cellRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    minHeight: 44,
+    minHeight: 40,
     marginTop: 2,
     gap: 6,
   },
   cellBox: {
     width: 52,
-    height: 44,
+    height: 40,
     borderRadius: 8,
-    borderWidth: 0.5,
+    borderWidth: 0.8,
     justifyContent: 'center',
-    paddingHorizontal: 10,
+    paddingHorizontal: 8,
   },
   cellInput: {
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: '600',
     padding: 0,
-    minHeight: 22,
+    minHeight: 20,
     textAlign: 'center',
   },
   times: {
-    fontSize: 16,
-    marginHorizontal: 4,
-    fontWeight: '300',
+    fontSize: 14,
+    marginHorizontal: 2,
+    fontWeight: '600',
   },
   unitAnchor: {
     position: 'relative',
@@ -218,17 +220,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 8,
-    borderWidth: 0.5,
+    borderWidth: 0.8,
     width: 56,
-    height: 44,
+    height: 40,
+    gap: 2,
   },
   unitText: {
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: '600',
   },
   unitCaret: {
-    fontSize: 10,
-    marginLeft: 2,
+    fontSize: 9,
+    fontWeight: '600',
   },
   unitGrid: {
     flexDirection: 'row',
@@ -240,25 +243,25 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 6,
     borderRadius: 6,
-    borderWidth: 0.5,
+    borderWidth: 0.8,
   },
   unitCellText: {
-    fontSize: 13,
-    fontWeight: '500',
+    fontSize: 12,
+    fontWeight: '600',
     textAlign: 'center',
   },
   iconBox: {
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 8,
-    borderWidth: 0.5,
-    width: 44,
-    height: 44,
-    marginLeft: 4,
+    borderWidth: 0.8,
+    width: 40,
+    height: 40,
+    marginLeft: 2,
     flexShrink: 0,
   },
   diagIcon: {
-    fontSize: 16,
+    fontSize: 14,
   },
   colorAnchor: {
     position: 'relative',
@@ -266,11 +269,10 @@ const styles = StyleSheet.create({
     marginLeft: 'auto',
   },
   colorBox: {
-    width: 75,
-    height: 44,
-    marginLeft: 4,
+    width: 78,
+    height: 40,
     borderRadius: 8,
-    borderWidth: 0.5,
+    borderWidth: 0.8,
     overflow: 'hidden',
     flexShrink: 0,
     flexDirection: 'row',
@@ -279,18 +281,14 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   colorSwatch: {
-    width: 20,
-    height: 20,
+    width: 18,
+    height: 18,
     borderRadius: 4,
-    borderWidth: 0.5,
+    borderWidth: 0.8,
   },
   colorLabel: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: '600',
   },
-  summary: {
-    fontSize: 10,
-    textAlign: 'center',
-    marginTop: 8,
-  },
 });
+

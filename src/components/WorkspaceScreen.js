@@ -19,6 +19,7 @@ import ExportPanel from './ExportPanel';
 import BottomTabBar from './BottomTabBar';
 import PhotoPanLayer from './PhotoPanLayer';
 import AppMenu from './AppMenu';
+import { Icon } from './UI';
 
 const { width: SW } = Dimensions.get('window');
 const SIZE_PANEL_HEIGHT = 120;
@@ -307,12 +308,12 @@ export default function WorkspaceScreen({ imageUri, onGoHome, onImageChange }) {
       <StatusBar barStyle={theme === 'light' ? 'dark-content' : 'light-content'} />
 
       <View style={[styles.header, { borderBottomColor: colors.border }]}>
-        <TouchableOpacity onPress={onGoHome} style={[styles.backBtn, { borderColor: colors.border }]}>
-          <Text style={{ color: colors.text, fontSize: 18 }}>‹</Text>
+        <TouchableOpacity onPress={onGoHome} style={[styles.backBtn, { borderColor: colors.border, backgroundColor: colors.card }]}>
+          <Icon name="chevron-left" size={16} color={colors.text} />
         </TouchableOpacity>
         <Text style={[styles.headerTitle, { color: colors.accent }]}>Workspace</Text>
-        <TouchableOpacity style={[styles.menuBtn, { borderColor: colors.border }]} onPress={() => setMenuOpen(true)}>
-          <Text style={[styles.menuIcon, { color: colors.text }]}>☰</Text>
+        <TouchableOpacity style={[styles.menuBtn, { borderColor: colors.border, backgroundColor: colors.card }]} onPress={() => setMenuOpen(true)}>
+          <Icon name="menu" size={16} color={colors.text} />
         </TouchableOpacity>
       </View>
 
@@ -401,26 +402,29 @@ export default function WorkspaceScreen({ imageUri, onGoHome, onImageChange }) {
         {/* Floating Zoom Controls */}
         <View style={styles.zoomControls}>
           <TouchableOpacity
-            style={[styles.zoomBtn, { backgroundColor: colors.card, borderColor: colors.border }]}
+            style={[styles.zoomBtn, { backgroundColor: colors.cardOverlay, borderColor: colors.border, ...colors.shadow }]}
             onPress={handleZoomOut}
             disabled={workspaceZoom <= 1}
+            activeOpacity={0.8}
           >
-            <Text style={[styles.zoomBtnText, { color: workspaceZoom <= 1 ? colors.textDim : colors.text }]}>−</Text>
+            <Icon name="minus" size={14} color={workspaceZoom <= 1 ? colors.textDim : colors.text} />
           </TouchableOpacity>
-          <View style={[styles.zoomLabelBg, { backgroundColor: colors.card, borderColor: colors.border }]}>
+          <View style={[styles.zoomLabelBg, { backgroundColor: colors.cardOverlay, borderColor: colors.border, ...colors.shadow }]}>
             <Text style={[styles.zoomLabel, { color: colors.text }]}>{Math.round(workspaceZoom * 100)}%</Text>
           </View>
           <TouchableOpacity
-            style={[styles.zoomBtn, { backgroundColor: colors.card, borderColor: colors.border }]}
+            style={[styles.zoomBtn, { backgroundColor: colors.cardOverlay, borderColor: colors.border, ...colors.shadow }]}
             onPress={handleZoomIn}
             disabled={workspaceZoom >= 4}
+            activeOpacity={0.8}
           >
-            <Text style={[styles.zoomBtnText, { color: workspaceZoom >= 4 ? colors.textDim : colors.text }]}>+</Text>
+            <Icon name="plus" size={14} color={workspaceZoom >= 4 ? colors.textDim : colors.text} />
           </TouchableOpacity>
           {workspaceZoom > 1 && (
             <TouchableOpacity
-              style={[styles.zoomBtn, { backgroundColor: colors.card, borderColor: colors.border }]}
+              style={[styles.zoomBtn, { backgroundColor: colors.cardOverlay, borderColor: colors.accent, ...colors.shadow }]}
               onPress={handleZoomReset}
+              activeOpacity={0.8}
             >
               <Text style={[styles.zoomResetText, { color: colors.accent }]}>1x</Text>
             </TouchableOpacity>
@@ -455,81 +459,77 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    borderBottomWidth: 0.5,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 0.8,
   },
   backBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: 8,
-    borderWidth: 0.5,
+    width: 38,
+    height: 38,
+    borderRadius: 10,
+    borderWidth: 0.8,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  headerTitle: { fontSize: 17, fontWeight: '700', letterSpacing: 0.5 },
+  headerTitle: { fontSize: 18, fontWeight: '800', letterSpacing: 0.5 },
   menuBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 8,
-    borderWidth: 0.5,
+    width: 38,
+    height: 38,
+    borderRadius: 10,
+    borderWidth: 0.8,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  menuIcon: { fontSize: 20 },
   canvasArea: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
   },
-  canvasInner: { position: 'relative', overflow: 'hidden' },
+  canvasInner: {
+    position: 'relative',
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.15)',
+    borderRadius: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 4,
+  },
   zoomControls: {
     position: 'absolute',
-    bottom: 12,
-    right: 12,
+    bottom: 16,
+    right: 16,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: 8,
     zIndex: 50,
   },
   zoomBtn: {
-    width: 32,
-    height: 32,
-    borderRadius: 8,
-    borderWidth: 0.5,
+    width: 34,
+    height: 34,
+    borderRadius: 10,
+    borderWidth: 0.8,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  zoomBtnText: {
-    fontSize: 18,
-    fontWeight: '600',
   },
   zoomResetText: {
-    fontSize: 11,
-    fontWeight: '600',
+    fontSize: 12,
+    fontWeight: '700',
   },
   zoomLabelBg: {
-    height: 32,
-    paddingHorizontal: 8,
-    borderRadius: 8,
-    borderWidth: 0.5,
+    height: 34,
+    paddingHorizontal: 10,
+    borderRadius: 10,
+    borderWidth: 0.8,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
   },
   zoomLabel: {
     fontSize: 11,
-    fontWeight: '600',
+    fontWeight: '700',
     fontVariant: ['tabular-nums'],
   },
   expandedPanel: {
@@ -537,8 +537,8 @@ const styles = StyleSheet.create({
     flexGrow: 0,
     maxHeight: '42%',
     minHeight: 200,
-    borderTopWidth: 0.5,
+    borderTopWidth: 0.8,
   },
-  footer: { flexShrink: 0, borderTopWidth: 0.5 },
+  footer: { flexShrink: 0, borderTopWidth: 0.8 },
   compactPanelSlot: { minHeight: 120, overflow: 'visible' },
 });
