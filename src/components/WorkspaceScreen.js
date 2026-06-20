@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import {
   View, Text, TouchableOpacity, StyleSheet, SafeAreaView,
-  StatusBar, Platform, Dimensions, Alert,
+  StatusBar, Platform, Dimensions, Alert, ScrollView,
 } from 'react-native';
 import * as FileSystem from 'expo-file-system/legacy';
 import * as Sharing from 'expo-sharing';
@@ -42,12 +42,62 @@ export default function WorkspaceScreen({ imageUri, onGoHome, onImageChange }) {
   const [photoTransform, setPhotoTransform] = useState(DEFAULT_PHOTO_TRANSFORM);
   const [canvasBox, setCanvasBox] = useState({ width: SW, height: 300 });
   const [previewUri, setPreviewUri] = useState(null);
+  const [workspaceZoom, setWorkspaceZoom] = useState(1);
   const canvasRef = useRef(null);
   const imageCacheRef = useRef({ uri: null, img: null });
   const photoTransformRef = useRef(photoTransform);
   const redrawRafRef = useRef(null);
   const [overlayVisible, setOverlayVisible] = useState(false);
   const [activeCloseHandler, setActiveCloseHandler] = useState(null);
+
+  const scrollRef = useRef(null);
+  const isDown = useRef(false);
+  const startX = useRef(0);
+  const startY = useRef(0);
+  const scrollLeft = useRef(0);
+  const scrollTop = useRef(0);
+
+  const handleZoomIn = () => {
+    setWorkspaceZoom(prev => Math.min(4, prev + 0.25));
+  };
+  const handleZoomOut = () => {
+    setWorkspaceZoom(prev => Math.max(1, prev - 0.25));
+  };
+  const handleZoomReset = () => {
+    setWorkspaceZoom(1);
+  };
+
+  const handleMouseDown = (e) => {
+    if (activeTab === 'size' || workspaceZoom <= 1) return;
+    isDown.current = true;
+    const scrollContainer = scrollRef.current;
+    if (!scrollContainer) return;
+    startX.current = e.pageX - scrollContainer.offsetLeft;
+    startY.current = e.pageY - scrollContainer.offsetTop;
+    scrollLeft.current = scrollContainer.scrollLeft;
+    scrollTop.current = scrollContainer.scrollTop;
+  };
+
+  const handleMouseLeave = () => {
+    isDown.current = false;
+  };
+
+  const handleMouseUp = () => {
+    isDown.current = false;
+  };
+
+  const handleMouseMove = (e) => {
+    if (!isDown.current || activeTab === 'size' || workspaceZoom <= 1) return;
+    const scrollContainer = scrollRef.current;
+    if (!scrollContainer) return;
+    e.preventDefault();
+    const x = e.pageX - scrollContainer.offsetLeft;
+    const y = e.pageY - scrollContainer.offsetTop;
+    const walkX = (x - startX.current) * 1.5;
+    const walkY = (y - startY.current) * 1.5;
+    scrollContainer.scrollLeft = scrollLeft.current - walkX;
+    scrollContainer.scrollTop = scrollTop.current - walkY;
+  };
 
   useEffect(() => {
     photoTransformRef.current = photoTransform;
@@ -89,9 +139,11 @@ export default function WorkspaceScreen({ imageUri, onGoHome, onImageChange }) {
   const redraw = useCallback(async () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    if (canvas.width !== cW || canvas.height !== cH) {
-      canvas.width = cW;
-      canvas.height = cH;
+    const targetW = Math.round(cW * workspaceZoom);
+    const targetH = Math.round(cH * workspaceZoom);
+    if (canvas.width !== targetW || canvas.height !== targetH) {
+      canvas.width = targetW;
+      canvas.height = targetH;
     }
     await renderToCanvas(canvas, {
       imageUri,
@@ -104,7 +156,7 @@ export default function WorkspaceScreen({ imageUri, onGoHome, onImageChange }) {
       photoTransform: photoTransformRef.current,
       canvasBg: theme === 'light' ? '#e8e4dc' : '#1a1a1a',
     });
-  }, [imageUri, adj, mesh, paperW, paperH, crop, cW, cH, theme]);
+  }, [imageUri, adj, mesh, paperW, paperH, crop, cW, cH, theme, workspaceZoom]);
 
   const redrawRef = useRef(redraw);
   redrawRef.current = redraw;
@@ -265,21 +317,113 @@ export default function WorkspaceScreen({ imageUri, onGoHome, onImageChange }) {
       </View>
 
       <View style={[styles.canvasArea, { backgroundColor: colors.canvasBg }]} onLayout={onCanvasAreaLayout}>
-        <View style={[styles.canvasInner, { width: cW, height: cH }]}>
-          <canvas
-            ref={canvasRef}
-            width={cW}
-            height={cH}
-            style={{ display: 'block', width: cW, height: cH }}
-          />
-          {imageUri && (
-            <PhotoPanLayer
-              width={cW}
-              height={cH}
-              enabled={activeTab === 'size'}
-              transform={photoTransform}
-              onPanChange={handlePanChange}
-            />
+        {Platform.OS === 'web' ? (
+          <div
+            ref={scrollRef}
+            onMouseDown={handleMouseDown}
+            onMouseLeave={handleMouseLeave}
+            onMouseUp={handleMouseUp}
+            onMouseMove={handleMouseMove}
+            style={{
+              width: '100%',
+              height: '100%',
+              overflow: 'auto',
+              display: 'flex',
+              alignItems: workspaceZoom > 1 ? 'flex-start' : 'center',
+              justifyContent: workspaceZoom > 1 ? 'flex-start' : 'center',
+              cursor: activeTab !== 'size' && workspaceZoom > 1 ? 'grab' : 'default',
+            }}
+          >
+            <View style={[
+              styles.canvasInner,
+              {
+                width: Math.round(cW * workspaceZoom),
+                height: Math.round(cH * workspaceZoom),
+                margin: workspaceZoom > 1 ? 16 : 'auto'
+              }
+            ]}>
+              <canvas
+                ref={canvasRef}
+                width={Math.round(cW * workspaceZoom)}
+                height={Math.round(cH * workspaceZoom)}
+                style={{
+                  display: 'block',
+                  width: Math.round(cW * workspaceZoom),
+                  height: Math.round(cH * workspaceZoom)
+                }}
+              />
+              {imageUri && (
+                <PhotoPanLayer
+                  width={Math.round(cW * workspaceZoom)}
+                  height={Math.round(cH * workspaceZoom)}
+                  enabled={activeTab === 'size'}
+                  transform={photoTransform}
+                  onPanChange={handlePanChange}
+                />
+              )}
+            </View>
+          </div>
+        ) : (
+          <ScrollView
+            style={{ width: '100%', height: '100%' }}
+            contentContainerStyle={{ alignItems: 'center', justifyContent: 'center', minWidth: '100%', minHeight: '100%' }}
+          >
+            <ScrollView
+              horizontal
+              style={{ width: '100%', height: '100%' }}
+              contentContainerStyle={{ alignItems: 'center', justifyContent: 'center', minWidth: '100%' }}
+            >
+              <View style={[styles.canvasInner, { width: Math.round(cW * workspaceZoom), height: Math.round(cH * workspaceZoom) }]}>
+                <canvas
+                  ref={canvasRef}
+                  width={Math.round(cW * workspaceZoom)}
+                  height={Math.round(cH * workspaceZoom)}
+                  style={{
+                    display: 'block',
+                    width: Math.round(cW * workspaceZoom),
+                    height: Math.round(cH * workspaceZoom)
+                  }}
+                />
+                {imageUri && (
+                  <PhotoPanLayer
+                    width={Math.round(cW * workspaceZoom)}
+                    height={Math.round(cH * workspaceZoom)}
+                    enabled={activeTab === 'size'}
+                    transform={photoTransform}
+                    onPanChange={handlePanChange}
+                  />
+                )}
+              </View>
+            </ScrollView>
+          </ScrollView>
+        )}
+
+        {/* Floating Zoom Controls */}
+        <View style={styles.zoomControls}>
+          <TouchableOpacity
+            style={[styles.zoomBtn, { backgroundColor: colors.card, borderColor: colors.border }]}
+            onPress={handleZoomOut}
+            disabled={workspaceZoom <= 1}
+          >
+            <Text style={[styles.zoomBtnText, { color: workspaceZoom <= 1 ? colors.textDim : colors.text }]}>−</Text>
+          </TouchableOpacity>
+          <View style={[styles.zoomLabelBg, { backgroundColor: colors.card, borderColor: colors.border }]}>
+            <Text style={[styles.zoomLabel, { color: colors.text }]}>{Math.round(workspaceZoom * 100)}%</Text>
+          </View>
+          <TouchableOpacity
+            style={[styles.zoomBtn, { backgroundColor: colors.card, borderColor: colors.border }]}
+            onPress={handleZoomIn}
+            disabled={workspaceZoom >= 4}
+          >
+            <Text style={[styles.zoomBtnText, { color: workspaceZoom >= 4 ? colors.textDim : colors.text }]}>+</Text>
+          </TouchableOpacity>
+          {workspaceZoom > 1 && (
+            <TouchableOpacity
+              style={[styles.zoomBtn, { backgroundColor: colors.card, borderColor: colors.border }]}
+              onPress={handleZoomReset}
+            >
+              <Text style={[styles.zoomResetText, { color: colors.accent }]}>1x</Text>
+            </TouchableOpacity>
           )}
         </View>
       </View>
@@ -337,8 +481,57 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    position: 'relative',
   },
   canvasInner: { position: 'relative', overflow: 'hidden' },
+  zoomControls: {
+    position: 'absolute',
+    bottom: 12,
+    right: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    zIndex: 50,
+  },
+  zoomBtn: {
+    width: 32,
+    height: 32,
+    borderRadius: 8,
+    borderWidth: 0.5,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  zoomBtnText: {
+    fontSize: 18,
+    fontWeight: '600',
+  },
+  zoomResetText: {
+    fontSize: 11,
+    fontWeight: '600',
+  },
+  zoomLabelBg: {
+    height: 32,
+    paddingHorizontal: 8,
+    borderRadius: 8,
+    borderWidth: 0.5,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  zoomLabel: {
+    fontSize: 11,
+    fontWeight: '600',
+    fontVariant: ['tabular-nums'],
+  },
   expandedPanel: {
     flexShrink: 1,
     flexGrow: 0,
