@@ -22,8 +22,8 @@ import AppMenu from './AppMenu';
 import { Icon } from './UI';
 
 const { width: SW } = Dimensions.get('window');
-const SIZE_PANEL_HEIGHT = 120;
-const MESH_PANEL_HEIGHT = 120;
+const SIZE_PANEL_HEIGHT = 142;
+const MESH_PANEL_HEIGHT = 142;
 const ADJUST_PANEL_HEIGHT = 200;
 const COMPACT_TABS = ['size', 'mesh', 'adjust']
 
